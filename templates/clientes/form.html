@@ -1,0 +1,38 @@
+{% extends "base/app.html" %}
+
+{% block title %}{{ titulo }} · Jurisly{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div>
+    <div class="eyebrow">Clientes</div>
+    <h1 class="page-title">{{ titulo }}</h1>
+  </div>
+</section>
+
+<section class="panel form-panel">
+  <form method="post" novalidate class="entity-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="flash is-error">{{ form.non_field_errors }}</div>
+    {% endif %}
+    <div class="form-grid">
+      {% for field in form %}
+        <div class="form-field {% if field.name == 'observacoes' or field.name == 'nome' %}form-field--full{% endif %} {% if field.errors %}has-error{% endif %}">
+          {% if field.field.widget.input_type == 'checkbox' %}
+            <label class="check-label">{{ field }} {{ field.label }}</label>
+          {% else %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+          {% endif %}
+          {% if field.errors %}<p class="field-error">{{ field.errors.0 }}</p>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+    <div class="form-actions">
+      <a href="{% url 'clientes:lista' %}" class="outline-btn">Cancelar</a>
+      <button type="submit" class="gold-btn">Salvar</button>
+    </div>
+  </form>
+</section>
+{% endblock %}

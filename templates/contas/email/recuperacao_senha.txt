@@ -1,0 +1,13 @@
+{% autoescape off %}
+Olá,
+
+Recebemos uma solicitação para redefinir a senha da sua conta no Jurisly.
+
+Acesse o link abaixo para escolher uma nova senha:
+
+{{ protocol }}://{{ domain }}{% url 'contas:redefinir_senha' uidb64=uid token=token %}
+
+Se você não solicitou esta alteração, ignore este e-mail.
+
+— Equipe Jurisly
+{% endautoescape %}

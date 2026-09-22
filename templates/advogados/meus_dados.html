@@ -1,0 +1,116 @@
+{% extends "base/app.html" %}
+
+{% block title %}Meus dados · Jurisly{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div>
+    <div class="eyebrow">Perfil profissional</div>
+    <h1 class="page-title">Meus dados</h1>
+    <p class="page-desc">
+      Cadastre as informações usadas nas consultas às APIs públicas (OAB, nome, período).
+      O CPF fica só no Jurisly — a API do DJEN não filtra por CPF.
+    </p>
+  </div>
+  {% if oab_exibida %}
+    <div class="oab-chip">{{ oab_exibida }}</div>
+  {% endif %}
+</section>
+
+<section class="panel form-panel">
+  <form method="post" novalidate class="entity-form">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="flash is-error" role="alert">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+    {% if formset.non_form_errors %}
+      <div class="flash is-error" role="alert">
+        {{ formset.non_form_errors }}
+      </div>
+    {% endif %}
+
+    <h2 class="form-section-title">Identificação</h2>
+    <div class="form-grid">
+      <div class="form-field form-field--full {% if form.nome_completo.errors %}has-error{% endif %}">
+        <label for="{{ form.nome_completo.id_for_label }}">{{ form.nome_completo.label }}</label>
+        {{ form.nome_completo }}
+        {% if form.nome_completo.errors %}<p class="field-error">{{ form.nome_completo.errors.0 }}</p>{% endif %}
+      </div>
+      <div class="form-field form-field--full {% if form.nome_consulta.errors %}has-error{% endif %}">
+        <label for="{{ form.nome_consulta.id_for_label }}">{{ form.nome_consulta.label }}</label>
+        {{ form.nome_consulta }}
+        {% if form.nome_consulta.help_text %}<p class="field-hint">{{ form.nome_consulta.help_text }}</p>{% endif %}
+        {% if form.nome_consulta.errors %}<p class="field-error">{{ form.nome_consulta.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field {% if form.cpf.errors %}has-error{% endif %}">
+        <label for="{{ form.cpf.id_for_label }}">{{ form.cpf.label }}</label>
+        {{ form.cpf }}
+        {% if form.cpf.help_text %}<p class="field-hint">{{ form.cpf.help_text }}</p>{% endif %}
+        {% if form.cpf.errors %}<p class="field-error">{{ form.cpf.errors.0 }}</p>{% endif %}
+      </div>
+      <div class="form-field {% if form.telefone.errors %}has-error{% endif %}">
+        <label for="{{ form.telefone.id_for_label }}">{{ form.telefone.label }}</label>
+        {{ form.telefone }}
+        {% if form.telefone.errors %}<p class="field-error">{{ form.telefone.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field form-field--full {% if form.email.errors %}has-error{% endif %}">
+        <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+        {{ form.email }}
+        {% if form.email.errors %}<p class="field-error">{{ form.email.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+
+    <h2 class="form-section-title">Inscrições OAB</h2>
+    <p class="field-hint" style="margin-top:-8px;margin-bottom:16px;">
+      Parâmetros da API: <code>numeroOab</code> + <code>ufOab</code>. Você pode cadastrar várias (principal e suplementares).
+    </p>
+
+    {{ formset.management_form }}
+    <div class="oab-rows">
+      {% for f in formset %}
+        <div class="oab-row {% if f.errors %}has-error{% endif %}">
+          {% for hidden in f.hidden_fields %}{{ hidden }}{% endfor %}
+          <div class="form-field">
+            <label for="{{ f.numero.id_for_label }}">{{ f.numero.label }}</label>
+            {{ f.numero }}
+            {% if f.numero.errors %}<p class="field-error">{{ f.numero.errors.0 }}</p>{% endif %}
+          </div>
+          <div class="form-field">
+            <label for="{{ f.uf.id_for_label }}">{{ f.uf.label }}</label>
+            {{ f.uf }}
+            {% if f.uf.errors %}<p class="field-error">{{ f.uf.errors.0 }}</p>{% endif %}
+          </div>
+          <div class="form-field">
+            <label for="{{ f.tipo.id_for_label }}">{{ f.tipo.label }}</label>
+            {{ f.tipo }}
+          </div>
+          <div class="form-field form-field--checks">
+            <label class="check-label">{{ f.principal }} Principal</label>
+            <label class="check-label">{{ f.ativo }} Ativa</label>
+            {% if f.DELETE %}
+              <label class="check-label check-label--danger">{{ f.DELETE }} Remover</label>
+            {% endif %}
+          </div>
+          {% if f.non_field_errors %}
+            <p class="field-error">{{ f.non_field_errors.0 }}</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="form-actions">
+      <a href="{% url 'core:dashboard' %}" class="outline-btn">Voltar ao dashboard</a>
+      <button type="submit" class="gold-btn">Salvar meus dados</button>
+    </div>
+  </form>
+</section>
+{% endblock %}

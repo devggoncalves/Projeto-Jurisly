@@ -1,0 +1,15 @@
+{% extends "base/base.html" %}
+
+{% block title %}Senha atualizada · Jurisly{% endblock %}
+
+{% block body %}
+<div class="auth-simple">
+  <div class="login-card max-w-md w-full text-center">
+    <h1 class="font-display text-3xl text-jurisly-gold-100">Senha redefinida</h1>
+    <p class="mt-3 text-sm text-jurisly-muted">Sua senha foi atualizada com sucesso. Você já pode entrar.</p>
+    <p class="mt-8">
+      <a href="{% url 'contas:login' %}" class="text-jurisly-gold-100 hover:text-jurisly-gold-50 text-sm">Ir para o login</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Recuperar senha · Jurisly{% endblock %}
+
+{% block body %}
+<div class="auth-simple">
+  <div class="login-card max-w-md w-full">
+    {% include "componentes/logo.html" with variante="compacta" %}
+    <h1 class="mt-6 font-display text-3xl text-center text-jurisly-gold-100">Esqueceu sua senha?</h1>
+    <p class="mt-2 text-sm text-center text-jurisly-muted">
+      Informe seu e-mail. Se existir uma conta associada, enviaremos as instruções de recuperação.
+    </p>
+
+    {% include "componentes/alerta.html" %}
+
+    <form method="post" class="mt-8 space-y-5" novalidate>
+      {% csrf_token %}
+      {% include "componentes/campo_formulario.html" with campo=form.email icone="email" %}
+      {% include "componentes/botao.html" with rotulo="Enviar instruções" %}
+    </form>
+
+    <p class="mt-6 text-center text-sm text-jurisly-muted">
+      <a href="{% url 'contas:login' %}" class="text-jurisly-gold-100 hover:text-jurisly-gold-50">Voltar ao login</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

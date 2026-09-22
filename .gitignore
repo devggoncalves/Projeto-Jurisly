@@ -1,0 +1,63 @@
+# Ambiente
+.env
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+
+# Testes / cobertura
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# Qualidade
+.ruff_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Node / Tailwind
+node_modules/
+static/css/app.css.map
+tailwindcss.exe
+
+
+# Django
+staticfiles/
+media/
+*.log
+local_settings.py
+
+# Docker / dados locais
+docker/postgres-data/
+*.sqlite3
+
+# IDE / SO
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Secrets e certificados
+*.pem
+*.key
+secrets/
+credentials.json

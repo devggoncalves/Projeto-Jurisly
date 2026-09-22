@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Jurisly">
+  <defs>
+    <linearGradient id="ouro" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F0D292"/>
+      <stop offset="45%" stop-color="#D6AA55"/>
+      <stop offset="100%" stop-color="#B98227"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F5F5F5"/>
+      <stop offset="100%" stop-color="#A7A7A7"/>
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="56" fill="none" stroke="url(#ouro)" stroke-width="2" opacity="0.55"/>
+  <path d="M48 28h28c2 0 4 1.5 4 4v6c0 18-10 28-18 32v18h10c1.5 0 3 1.2 3 3s-1.5 3-3 3H42c-1.5 0-3-1.2-3-3s1.5-3 3-3h10V70c-8-4-18-14-18-32v-6c0-2.5 2-4 4-4z" fill="url(#metal)" opacity="0.92"/>
+  <path d="M60 34v8M42 42h36" stroke="url(#ouro)" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M42 42c0 8 6 12 10 14M78 42c0 8-6 12-10 14" fill="none" stroke="url(#ouro)" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="42" cy="56" r="5" fill="url(#ouro)"/>
+  <circle cx="78" cy="56" r="5" fill="url(#ouro)"/>
+  <rect x="56" y="86" width="8" height="4" rx="1" fill="url(#ouro)"/>
+</svg>

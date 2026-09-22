@@ -1,0 +1,189 @@
+{% extends "base/app.html" %}
+
+{% block title %}Consultas DJEN · Jurisly{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div>
+    <div class="eyebrow">Integração temporária</div>
+    <h1 class="page-title">Consultas DJEN</h1>
+    <p class="page-desc">
+      Tela de teste da API pública do CNJ/DJEN. Mostra o retorno completo para validarmos o mapeamento
+      antes de integrar no dashboard principal.
+    </p>
+  </div>
+  {% if oab_perfil %}
+    <div class="oab-chip">Perfil: {{ oab_perfil }}</div>
+  {% endif %}
+</section>
+
+<section class="panel form-panel">
+  <form method="post" novalidate class="entity-form">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="flash is-error" role="alert">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <h2 class="form-section-title">Filtros da API</h2>
+    <div class="form-grid">
+      <div class="form-field {% if form.numero_oab.errors %}has-error{% endif %}">
+        <label for="{{ form.numero_oab.id_for_label }}">{{ form.numero_oab.label }}</label>
+        {{ form.numero_oab }}
+        {% if form.numero_oab.errors %}<p class="field-error">{{ form.numero_oab.errors.0 }}</p>{% endif %}
+      </div>
+      <div class="form-field {% if form.uf_oab.errors %}has-error{% endif %}">
+        <label for="{{ form.uf_oab.id_for_label }}">{{ form.uf_oab.label }}</label>
+        {{ form.uf_oab }}
+        {% if form.uf_oab.errors %}<p class="field-error">{{ form.uf_oab.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field {% if form.data_inicio.errors %}has-error{% endif %}">
+        <label for="{{ form.data_inicio.id_for_label }}">{{ form.data_inicio.label }}</label>
+        {{ form.data_inicio }}
+        {% if form.data_inicio.errors %}<p class="field-error">{{ form.data_inicio.errors.0 }}</p>{% endif %}
+      </div>
+      <div class="form-field {% if form.data_fim.errors %}has-error{% endif %}">
+        <label for="{{ form.data_fim.id_for_label }}">{{ form.data_fim.label }}</label>
+        {{ form.data_fim }}
+        {% if form.data_fim.errors %}<p class="field-error">{{ form.data_fim.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field form-field--full {% if form.nome_advogado.errors %}has-error{% endif %}">
+        <label for="{{ form.nome_advogado.id_for_label }}">{{ form.nome_advogado.label }}</label>
+        {{ form.nome_advogado }}
+      </div>
+      <div class="form-field {% if form.nome_parte.errors %}has-error{% endif %}">
+        <label for="{{ form.nome_parte.id_for_label }}">{{ form.nome_parte.label }}</label>
+        {{ form.nome_parte }}
+      </div>
+      <div class="form-field {% if form.numero_processo.errors %}has-error{% endif %}">
+        <label for="{{ form.numero_processo.id_for_label }}">{{ form.numero_processo.label }}</label>
+        {{ form.numero_processo }}
+      </div>
+      <div class="form-field {% if form.sigla_tribunal.errors %}has-error{% endif %}">
+        <label for="{{ form.sigla_tribunal.id_for_label }}">{{ form.sigla_tribunal.label }}</label>
+        {{ form.sigla_tribunal }}
+      </div>
+      <div class="form-field form-field--full {% if form.texto.errors %}has-error{% endif %}">
+        <label for="{{ form.texto.id_for_label }}">{{ form.texto.label }}</label>
+        {{ form.texto }}
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-field {% if form.pagina.errors %}has-error{% endif %}">
+        <label for="{{ form.pagina.id_for_label }}">{{ form.pagina.label }}</label>
+        {{ form.pagina }}
+      </div>
+      <div class="form-field {% if form.itens_por_pagina.errors %}has-error{% endif %}">
+        <label for="{{ form.itens_por_pagina.id_for_label }}">{{ form.itens_por_pagina.label }}</label>
+        {{ form.itens_por_pagina }}
+      </div>
+    </div>
+
+    <div class="form-checks">
+      <label class="check-label">{{ form.usar_perfil }} {{ form.usar_perfil.label }}</label>
+      <label class="check-label">{{ form.persistir }} {{ form.persistir.label }}</label>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="gold-btn">Consultar API pública</button>
+    </div>
+  </form>
+</section>
+
+{% if resultado %}
+  <section class="panel result-meta">
+    <h2 class="panel-title">Resumo da resposta</h2>
+    {% if resultado.ok and resultado.resposta %}
+      <dl class="meta-grid">
+        <div><dt>status</dt><dd>{{ resultado.resposta.status }}</dd></div>
+        <div><dt>message</dt><dd>{{ resultado.resposta.message }}</dd></div>
+        <div><dt>count</dt><dd>{{ resultado.resposta.count }}</dd></div>
+        <div><dt>página</dt><dd>{{ resultado.resposta.pagina }}</dd></div>
+        <div><dt>itensPorPagina</dt><dd>{{ resultado.resposta.itens_por_pagina }}</dd></div>
+        <div><dt>itens nesta página</dt><dd>{{ resultado.resposta.items|length }}</dd></div>
+        <div class="meta-full"><dt>URL</dt><dd class="mono">{{ resultado.resposta.url }}</dd></div>
+        <div class="meta-full"><dt>Parâmetros</dt><dd class="mono">{{ resultado.resposta.parametros }}</dd></div>
+        <div class="meta-full"><dt>Rate limit headers</dt><dd class="mono">{{ resultado.resposta.headers_rate_limit }}</dd></div>
+      </dl>
+    {% else %}
+      <p class="field-error">{{ resultado.erro|default:resultado.mensagem }}</p>
+    {% endif %}
+  </section>
+
+  {% if resultado.itens_enriquecidos %}
+    {% for item in resultado.itens_enriquecidos %}
+      <section class="panel djen-item">
+        <div class="panel-head">
+          <h2 class="panel-title">Item {{ forloop.counter }} — {{ item.mapeado.tipo_comunicacao|default:"comunicação" }}</h2>
+          {% if item.persistido_id %}
+            <span class="oab-chip">persistido {{ item.persistido_id|truncatechars:13 }}</span>
+          {% endif %}
+        </div>
+
+        <dl class="meta-grid">
+          <div><dt>hash</dt><dd class="mono">{{ item.mapeado.hash }}</dd></div>
+          <div><dt>identificador</dt><dd class="mono">{{ item.mapeado.identificador_externo }}</dd></div>
+          <div><dt>tribunal</dt><dd>{{ item.mapeado.tribunal }}</dd></div>
+          <div><dt>órgão</dt><dd>{{ item.mapeado.orgao }}</dd></div>
+          <div><dt>processo</dt><dd class="mono">{{ item.mapeado.numero_processo }}</dd></div>
+          <div><dt>máscara</dt><dd class="mono">{{ item.mapeado.numero_processo_mascarado }}</dd></div>
+          <div><dt>disponibilização</dt><dd>{{ item.mapeado.data_disponibilizacao }}</dd></div>
+          <div><dt>meio</dt><dd>{{ item.mapeado.meio }}</dd></div>
+          <div><dt>tipo documento</dt><dd>{{ item.mapeado.tipo_documento }}</dd></div>
+          <div><dt>classe</dt><dd>{{ item.mapeado.nome_classe }}</dd></div>
+          <div><dt>nº comunicação</dt><dd>{{ item.mapeado.numero_comunicacao }}</dd></div>
+          <div><dt>status origem</dt><dd>{{ item.mapeado.status_origem }}</dd></div>
+          {% if item.mapeado.link %}
+            <div class="meta-full"><dt>link</dt><dd><a href="{{ item.mapeado.link }}" target="_blank" rel="noopener">{{ item.mapeado.link }}</a></dd></div>
+          {% endif %}
+        </dl>
+
+        {% if item.advogados_origem %}
+          <h3 class="subhead">destinatarioadvogados</h3>
+          <ul class="adv-origem-list">
+            {% for adv in item.advogados_origem %}
+              <li>
+                <strong>{{ adv.nome|default:"(sem nome)" }}</strong>
+                — OAB/{{ adv.uf_oab }} {{ adv.numero_oab }}
+                {% if adv.id %}<span class="mono muted"> id={{ adv.id }}</span>{% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        <h3 class="subhead">Texto</h3>
+        <pre class="djen-texto">{{ item.mapeado.texto }}</pre>
+
+        <details class="djen-details">
+          <summary>Todos os campos achatados do item</summary>
+          <table class="djen-table">
+            <thead><tr><th>Campo</th><th>Valor</th></tr></thead>
+            <tbody>
+              {% for caminho, valor in item.campos_achatados %}
+                <tr>
+                  <td class="mono">{{ caminho }}</td>
+                  <td class="mono">{{ valor }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </details>
+      </section>
+    {% endfor %}
+  {% endif %}
+
+  {% if json_bruto %}
+    <section class="panel">
+      <h2 class="panel-title">JSON bruto (envelope)</h2>
+      <pre class="djen-json">{{ json_bruto }}</pre>
+    </section>
+  {% endif %}
+{% endif %}
+{% endblock %}

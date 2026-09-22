@@ -1,0 +1,55 @@
+{% extends "base/app.html" %}
+
+{% block title %}Comunicações · Jurisly{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div>
+    <div class="eyebrow">DJEN</div>
+    <h1 class="page-title">Comunicações</h1>
+    <p class="page-desc">Casos encontrados na API pública. Pendente = encontrada, ainda não confirmada por você.</p>
+  </div>
+  <form method="post" action="{% url 'integracoes:sincronizar_djen' %}">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="integracoes:lista_comunicacoes">
+    <button type="submit" class="gold-btn">Buscar no DJEN</button>
+  </form>
+</section>
+
+<nav class="filter-tabs" aria-label="Filtros">
+  <a href="?filtro=pendentes" class="{% if filtro == 'pendentes' %}is-active{% endif %}">Pendentes</a>
+  <a href="?filtro=nao_visualizados" class="{% if filtro == 'nao_visualizados' %}is-active{% endif %}">Não visualizados</a>
+  <a href="?filtro=todos" class="{% if filtro == 'todos' %}is-active{% endif %}">Todos</a>
+</nav>
+
+<section class="panel">
+  {% if vinculos %}
+    <ul class="comms-list comms-list--full">
+      {% for v in vinculos %}
+        <li>
+          <a href="{% url 'integracoes:detalhe_comunicacao' v.id %}">
+            <div class="comms-main">
+              <strong>{{ v.comunicacao.tipo_comunicacao|default:"Comunicação" }}</strong>
+              {% if not v.visualizado %}<span class="badge-new">Novo</span>{% endif %}
+              <span class="badge-status">{{ v.get_status_display }}</span>
+            </div>
+            <span>{{ v.comunicacao.numero_processo_mascarado|default:v.comunicacao.numero_processo|default:"Sem processo" }}</span>
+            <small>
+              {{ v.comunicacao.tribunal|default:"—" }}
+              · {{ v.comunicacao.orgao|default:"" }}
+              · {{ v.comunicacao.data_disponibilizacao|date:"d/m/Y"|default:"—" }}
+            </small>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="empty">
+      <div>
+        Nenhuma comunicação neste filtro.
+        <small>Clique em “Buscar no DJEN” para atualizar.</small>
+      </div>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,7 @@
+-r requirements.txt
+pytest>=8.3,<9
+pytest-django>=4.9,<5
+ruff>=0.9,<1
+black>=25.1,<26
+pre-commit>=4.1,<5
+factory-boy>=3.3,<4

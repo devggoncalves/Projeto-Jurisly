@@ -1,0 +1,40 @@
+{% extends "base/app.html" %}
+
+{% block title %}Clientes · Jurisly{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div>
+    <div class="eyebrow">Carteira</div>
+    <h1 class="page-title">Clientes</h1>
+    <p class="page-desc">Cadastre clientes e atribua processos a cada um.</p>
+  </div>
+  <div class="quick-actions">
+    <a href="{% url 'clientes:novo' %}" class="gold-btn">Novo cliente</a>
+    <a href="{% url 'clientes:novo_processo' %}" class="outline-btn">Atribuir processo</a>
+  </div>
+</section>
+
+<section class="panel">
+  {% if clientes %}
+    <ul class="comms-list comms-list--full">
+      {% for c in clientes %}
+        <li>
+          <a href="{% url 'clientes:editar' c.id %}">
+            <div class="comms-main">
+              <strong>{{ c.nome }}</strong>
+              {% if not c.ativo %}<span class="badge-status">Inativo</span>{% endif %}
+            </div>
+            <span>{{ c.documento|default:"Sem documento" }} · {{ c.email|default:"—" }}</span>
+            <small>{{ c.processos.count }} processo(s)</small>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="empty">
+      <div>Nenhum cliente cadastrado.<small>Comece pelo botão “Novo cliente”.</small></div>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

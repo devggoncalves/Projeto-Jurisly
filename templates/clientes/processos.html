@@ -1,0 +1,31 @@
+{% extends "base/app.html" %}
+
+{% block title %}Processos · Jurisly{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div>
+    <div class="eyebrow">Carteira</div>
+    <h1 class="page-title">Processos</h1>
+  </div>
+  <a href="{% url 'clientes:novo_processo' %}" class="gold-btn">Atribuir processo</a>
+</section>
+
+<section class="panel">
+  {% if processos %}
+    <ul class="comms-list comms-list--full">
+      {% for p in processos %}
+        <li>
+          <div class="comms-main">
+            <strong>{{ p.numero_mascarado|default:p.numero }}</strong>
+          </div>
+          <span>Cliente: {{ p.cliente.nome }}</span>
+          <small>{{ p.tribunal|default:"—" }} · {{ p.classe|default:"" }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="empty"><div>Nenhum processo cadastrado.</div></div>
+  {% endif %}
+</section>
+{% endblock %}

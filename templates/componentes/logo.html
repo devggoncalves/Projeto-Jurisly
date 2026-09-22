@@ -1,0 +1,30 @@
+{% load static %}
+{# variante: completa (lockup login) | compacta (header/dashboard) #}
+{% if variante == "completa" %}
+<a href="{% url 'core:raiz' %}" class="inline-flex justify-center no-underline" aria-label="Jurisly">
+  <img
+    src="{% static 'images/brand/logo-jurisly.png' %}"
+    alt="Jurisly — Sua advocacia sempre à frente"
+    class="logo-oficial w-full max-w-[300px] md:max-w-[360px] h-auto select-none"
+    width="360"
+    height="400"
+    decoding="async"
+  >
+</a>
+{% else %}
+<a href="{% url 'core:raiz' %}" class="inline-flex items-center no-underline" aria-label="Jurisly">
+  <img
+    src="{% static 'images/brand/logo-jurisly.png' %}"
+    alt="Jurisly"
+    class="h-12 w-12 object-cover object-[center_12%] select-none rounded-sm"
+    width="48"
+    height="48"
+    decoding="async"
+  >
+  {% if mostrar_nome %}
+  <span class="ml-3 font-display text-2xl tracking-wide">
+    <span class="text-[#c9d0dc]">Juris</span><span class="texto-ouro">ly</span>
+  </span>
+  {% endif %}
+</a>
+{% endif %}

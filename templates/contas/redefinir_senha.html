@@ -1,0 +1,35 @@
+{% extends "base/base.html" %}
+
+{% block title %}Redefinir senha · Jurisly{% endblock %}
+
+{% block body %}
+<div class="auth-simple">
+  <div class="login-card max-w-md w-full">
+    <h1 class="font-display text-3xl text-center text-jurisly-gold-100">Definir nova senha</h1>
+    <p class="mt-2 text-sm text-center text-jurisly-muted">Escolha uma senha segura para sua conta.</p>
+
+    {% include "componentes/alerta.html" %}
+
+    {% if validlink %}
+      <form method="post" class="mt-8 space-y-5" novalidate>
+        {% csrf_token %}
+        {% include "componentes/campo_formulario.html" with campo=form.new_password1 icone="lock" mostrar_senha=True %}
+        {% include "componentes/campo_formulario.html" with campo=form.new_password2 icone="lock" mostrar_senha=True %}
+        {% include "componentes/botao.html" with rotulo="Salvar nova senha" %}
+      </form>
+    {% else %}
+      <p class="mt-6 text-sm text-red-200 text-center" role="alert">
+        Este link de recuperação é inválido ou já expirou. Solicite um novo.
+      </p>
+      <p class="mt-6 text-center">
+        <a href="{% url 'contas:esqueci_senha' %}" class="text-jurisly-gold-100 text-sm">Solicitar novamente</a>
+      </p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="{% static 'js/login.js' %}" defer></script>
+{% endblock %}

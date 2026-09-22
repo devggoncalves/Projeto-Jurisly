@@ -1,0 +1,81 @@
+{% extends "base/app.html" %}
+
+{% block title %}Detalhe · Jurisly{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div>
+    <div class="eyebrow">{{ comunicacao.fonte }}</div>
+    <h1 class="page-title">{{ comunicacao.tipo_comunicacao|default:"Comunicação" }}</h1>
+    <p class="page-desc">
+      {{ comunicacao.tipo_documento }}
+      {% if comunicacao.data_disponibilizacao %} · disponibilizada em {{ comunicacao.data_disponibilizacao|date:"d/m/Y" }}{% endif %}
+    </p>
+  </div>
+  <div class="oab-chip">{{ vinculo.get_status_display }}{% if vinculo.visualizado %} · visualizado{% else %} · não visualizado{% endif %}</div>
+</section>
+
+<section class="panel">
+  <h2 class="form-section-title">Identificação</h2>
+  <dl class="meta-grid">
+    <div><dt>Tribunal</dt><dd>{{ comunicacao.tribunal|default:"—" }}</dd></div>
+    <div><dt>Órgão</dt><dd>{{ comunicacao.orgao|default:"—" }}</dd></div>
+    <div><dt>Processo</dt><dd>{{ comunicacao.numero_processo_mascarado|default:comunicacao.numero_processo|default:"—" }}</dd></div>
+    <div><dt>Nº comunicação</dt><dd>{{ comunicacao.numero_comunicacao|default:"—" }}</dd></div>
+    <div><dt>Classe</dt><dd>{{ comunicacao.nome_classe|default:"—" }}</dd></div>
+    <div><dt>Meio</dt><dd>{{ comunicacao.meio|default:"—" }}</dd></div>
+    <div><dt>Status na origem</dt><dd>{{ comunicacao.status_origem|default:"—" }}</dd></div>
+    <div><dt>Hash</dt><dd class="mono">{{ comunicacao.hash|default:comunicacao.identificador_externo }}</dd></div>
+    {% if comunicacao.link %}
+      <div class="meta-full"><dt>Link</dt><dd><a href="{{ comunicacao.link }}" target="_blank" rel="noopener">Abrir documento</a></dd></div>
+    {% endif %}
+  </dl>
+</section>
+
+{% if advogados_origem %}
+<section class="panel">
+  <h2 class="form-section-title">Advogados destinatários</h2>
+  <ul class="adv-origem-list">
+    {% for adv in advogados_origem %}
+      <li>
+        <strong>{{ adv.nome|default:"(sem nome)" }}</strong>
+        — OAB/{{ adv.uf_oab|default:adv.ufOab }} {{ adv.numero_oab|default:adv.numeroOab }}
+      </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% if destinatarios %}
+<section class="panel">
+  <h2 class="form-section-title">Partes / destinatários</h2>
+  <ul class="adv-origem-list">
+    {% for d in destinatarios %}
+      <li>{{ d.nome|default:d }}</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<section class="panel">
+  <h2 class="form-section-title">Texto da comunicação</h2>
+  <div class="texto-limpo">{{ comunicacao.texto|linebreaksbr }}</div>
+</section>
+
+<section class="panel">
+  <h2 class="form-section-title">Ações</h2>
+  <div class="quick-actions">
+    <form method="post">
+      {% csrf_token %}
+      {% if vinculo.visualizado %}
+        <button type="submit" name="acao" value="marcar_nao_visualizado" class="outline-btn">Marcar como não visualizado</button>
+      {% else %}
+        <button type="submit" name="acao" value="marcar_visualizado" class="outline-btn">Marcar como visualizado</button>
+      {% endif %}
+      <button type="submit" name="acao" value="confirmar" class="gold-btn">É minha</button>
+      <button type="submit" name="acao" value="rejeitar" class="outline-btn">Não é minha</button>
+    </form>
+    <a href="{% url 'integracoes:lista_comunicacoes' %}" class="outline-btn">Voltar à lista</a>
+  </div>
+</section>
+{% endblock %}

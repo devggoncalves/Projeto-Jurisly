@@ -1,0 +1,1 @@
+"""Apps Django do Jurisly."""
