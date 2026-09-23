@@ -1,14 +1,15 @@
 {% extends "base/app.html" %}
 
-{% block title %}Completar cadastro · Jurisly{% endblock %}
+{% block title %}Primeiro acesso · Jurisly{% endblock %}
 
 {% block content %}
 <section class="page-head">
   <div>
-    <div class="eyebrow">Primeiro acesso</div>
-    <h1 class="page-title">Complete seu cadastro</h1>
+    <div class="eyebrow">Verificação obrigatória</div>
+    <h1 class="page-title">Complete seu acesso</h1>
     <p class="page-desc">
-      Para continuar, informe seu e-mail e o número da OAB. Esses dados são usados nas consultas ao DJEN.
+      Por segurança, altere a senha provisória e cadastre sua OAB para continuar.
+      Seu e-mail de acesso: <strong>{{ email_usuario }}</strong>
     </p>
   </div>
 </section>
@@ -20,16 +21,26 @@
       <div class="flash is-error" role="alert">{{ form.non_field_errors }}</div>
     {% endif %}
 
+    <h2 class="form-section-title">Nova senha</h2>
+    <div class="form-grid">
+      <div class="form-field {% if form.nova_senha.errors %}has-error{% endif %}">
+        <label for="{{ form.nova_senha.id_for_label }}">{{ form.nova_senha.label }}</label>
+        {{ form.nova_senha }}
+        {% if form.nova_senha.errors %}<p class="field-error">{{ form.nova_senha.errors.0 }}</p>{% endif %}
+      </div>
+      <div class="form-field {% if form.confirmar_senha.errors %}has-error{% endif %}">
+        <label for="{{ form.confirmar_senha.id_for_label }}">{{ form.confirmar_senha.label }}</label>
+        {{ form.confirmar_senha }}
+        {% if form.confirmar_senha.errors %}<p class="field-error">{{ form.confirmar_senha.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+
+    <h2 class="form-section-title">Dados profissionais</h2>
     <div class="form-grid">
       <div class="form-field form-field--full {% if form.nome_completo.errors %}has-error{% endif %}">
         <label for="{{ form.nome_completo.id_for_label }}">{{ form.nome_completo.label }}</label>
         {{ form.nome_completo }}
         {% if form.nome_completo.errors %}<p class="field-error">{{ form.nome_completo.errors.0 }}</p>{% endif %}
-      </div>
-      <div class="form-field form-field--full {% if form.email.errors %}has-error{% endif %}">
-        <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
-        {{ form.email }}
-        {% if form.email.errors %}<p class="field-error">{{ form.email.errors.0 }}</p>{% endif %}
       </div>
       <div class="form-field {% if form.numero_oab.errors %}has-error{% endif %}">
         <label for="{{ form.numero_oab.id_for_label }}">{{ form.numero_oab.label }}</label>

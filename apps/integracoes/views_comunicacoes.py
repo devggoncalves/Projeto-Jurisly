@@ -8,6 +8,7 @@ from django.views.decorators.http import require_http_methods, require_POST
 
 from apps.advogados.services import obter_perfil_advogado
 from apps.core.shell import contexto_shell, organizacao_padrao
+from apps.integracoes.djen.preview_html import preparar_preview_html_comunicacao
 from apps.integracoes.djen.sincronizacao import sincronizar_advogado_do_usuario
 from apps.integracoes.models import (
     ComunicacaoAdvogado,
@@ -122,6 +123,7 @@ def detalhe_comunicacao(request, vinculo_id):
             destinatarios=destinatarios,
             advogados_origem=advogados_origem,
             advogado=advogado,
+            texto_preview_html=preparar_preview_html_comunicacao(comunicacao.texto),
         ),
     )
 

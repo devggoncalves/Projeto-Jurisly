@@ -1,0 +1,48 @@
+{% extends "base/app.html" %}
+
+{% block title %}Novo usuário · Jurisly{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div>
+    <div class="eyebrow">Administração</div>
+    <h1 class="page-title">Novo usuário (advogado)</h1>
+    <p class="page-desc">Informe e-mail e senha provisória. O advogado completa OAB e troca a senha no primeiro login.</p>
+  </div>
+</section>
+
+<section class="panel form-panel">
+  <form method="post" novalidate class="entity-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="flash is-error">{{ form.non_field_errors }}</div>
+    {% endif %}
+    <div class="form-grid">
+      <div class="form-field form-field--full {% if form.email.errors %}has-error{% endif %}">
+        <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+        {{ form.email }}
+        {% if form.email.errors %}<p class="field-error">{{ form.email.errors.0 }}</p>{% endif %}
+      </div>
+      <div class="form-field {% if form.senha.errors %}has-error{% endif %}">
+        <label for="{{ form.senha.id_for_label }}">{{ form.senha.label }}</label>
+        {{ form.senha }}
+        {% if form.senha.errors %}<p class="field-error">{{ form.senha.errors.0 }}</p>{% endif %}
+      </div>
+      <div class="form-field {% if form.senha_confirmacao.errors %}has-error{% endif %}">
+        <label for="{{ form.senha_confirmacao.id_for_label }}">{{ form.senha_confirmacao.label }}</label>
+        {{ form.senha_confirmacao }}
+        {% if form.senha_confirmacao.errors %}<p class="field-error">{{ form.senha_confirmacao.errors.0 }}</p>{% endif %}
+      </div>
+      <div class="form-field form-field--full {% if form.organizacao.errors %}has-error{% endif %}">
+        <label for="{{ form.organizacao.id_for_label }}">{{ form.organizacao.label }}</label>
+        {{ form.organizacao }}
+        {% if form.organizacao.errors %}<p class="field-error">{{ form.organizacao.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+    <div class="form-actions">
+      <a href="{% url 'contas:lista_usuarios' %}" class="outline-btn">Cancelar</a>
+      <button type="submit" class="gold-btn">Criar usuário</button>
+    </div>
+  </form>
+</section>
+{% endblock %}

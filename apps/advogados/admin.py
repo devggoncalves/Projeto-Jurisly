@@ -14,13 +14,18 @@ class AdvogadoAdmin(admin.ModelAdmin):
     list_display = (
         "nome_completo",
         "email",
-        "cpf",
         "usuario",
         "organizacao",
         "ativo",
     )
     list_filter = ("ativo", "organizacao")
-    search_fields = ("nome_completo", "nome_consulta", "email", "cpf", "usuario__email")
+    search_fields = (
+        "nome_completo",
+        "email",
+        "usuario__email",
+        "usuario__login",
+        "inscricoes__numero",
+    )
     autocomplete_fields = ("organizacao", "usuario")
     readonly_fields = ("id", "data_criacao", "data_atualizacao")
     inlines = [InscricaoOabInline]
@@ -30,6 +35,6 @@ class AdvogadoAdmin(admin.ModelAdmin):
 class InscricaoOabAdmin(admin.ModelAdmin):
     list_display = ("numero", "uf", "tipo", "principal", "ativo", "advogado")
     list_filter = ("uf", "tipo", "principal", "ativo")
-    search_fields = ("numero", "advogado__nome_completo")
+    search_fields = ("numero", "advogado__nome_completo", "advogado__email")
     autocomplete_fields = ("advogado",)
     readonly_fields = ("id", "data_criacao", "data_atualizacao")

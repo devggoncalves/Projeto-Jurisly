@@ -39,7 +39,7 @@
     {% for adv in advogados_origem %}
       <li>
         <strong>{{ adv.nome|default:"(sem nome)" }}</strong>
-        — OAB/{{ adv.uf_oab|default:adv.ufOab }} {{ adv.numero_oab|default:adv.numeroOab }}
+        — OAB/{{ adv.uf_oab|default:"—" }} {{ adv.numero_oab|default:"" }}
       </li>
     {% endfor %}
   </ul>
@@ -59,7 +59,21 @@
 
 <section class="panel">
   <h2 class="form-section-title">Texto da comunicação</h2>
-  <div class="texto-limpo">{{ comunicacao.texto|linebreaksbr }}</div>
+  <div class="html-mail-preview" role="region" aria-label="Pré-visualização do texto">
+    <div class="html-mail-chrome" aria-hidden="true">
+      <span class="html-mail-dot"></span>
+      <span class="html-mail-dot"></span>
+      <span class="html-mail-dot"></span>
+      <span class="html-mail-title">Pré-visualização</span>
+    </div>
+    <iframe
+      class="html-mail-frame"
+      title="Pré-visualização HTML da comunicação"
+      sandbox=""
+      referrerpolicy="no-referrer"
+      srcdoc="{{ texto_preview_html }}"
+    ></iframe>
+  </div>
 </section>
 
 <section class="panel">

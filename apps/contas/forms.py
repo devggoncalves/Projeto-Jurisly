@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm, SetPasswordForm
+from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
 from apps.advogados.models import UnidadeFederativa, normalizar_numero_oab, validar_numero_oab
@@ -10,13 +11,14 @@ from apps.contas.models import Usuario
 
 
 class FormularioLogin(AuthenticationForm):
-    username = forms.CharField(
-        label="Login",
-        widget=forms.TextInput(
+    username = forms.EmailField(
+        label="E-mail",
+        widget=forms.EmailInput(
             attrs={
-                "placeholder": "Seu login",
+                "placeholder": "Seu e-mail",
                 "autocomplete": "username",
                 "class": "campo-input",
+                "inputmode": "email",
             }
         ),
     )
@@ -46,7 +48,9 @@ class FormularioLogin(AuthenticationForm):
         return normalizar_login(self.cleaned_data.get("username", ""))
 
 
-class FormularioCompletarCadastro(forms.Form):
+class FormularioPrimeiroAcesso(forms.Form):
+    """1º login: nova senha + OAB (e-mail já definido pelo admin)."""
+
     nome_completo = forms.CharField(
         label="Nome completo",
         max_length=255,
@@ -54,10 +58,18 @@ class FormularioCompletarCadastro(forms.Form):
             attrs={"class": "campo-texto", "placeholder": "Nome como na OAB"}
         ),
     )
-    email = forms.EmailField(
-        label="E-mail",
-        widget=forms.EmailInput(
-            attrs={"class": "campo-texto", "placeholder": "seu@email.com"}
+    nova_senha = forms.CharField(
+        label="Nova senha",
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={"class": "campo-texto", "autocomplete": "new-password"}
+        ),
+    )
+    confirmar_senha = forms.CharField(
+        label="Confirmar nova senha",
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={"class": "campo-texto", "autocomplete": "new-password"}
         ),
     )
     numero_oab = forms.CharField(
@@ -80,24 +92,25 @@ class FormularioCompletarCadastro(forms.Form):
     def __init__(self, *args, usuario: Usuario | None = None, **kwargs):
         self.usuario = usuario
         super().__init__(*args, **kwargs)
-        if usuario and usuario.email:
-            self.fields["email"].initial = usuario.email
-        if usuario and usuario.get_full_name() and usuario.nome:
-            self.fields["nome_completo"].initial = usuario.get_full_name()
-
-    def clean_email(self):
-        email = Usuario.objects.normalizar_email(self.cleaned_data["email"])
-        qs = Usuario.objects.filter(email=email)
-        if self.usuario:
-            qs = qs.exclude(pk=self.usuario.pk)
-        if qs.exists():
-            raise ValidationError("Este e-mail já está em uso.")
-        return email
 
     def clean_numero_oab(self):
         numero = normalizar_numero_oab(self.cleaned_data["numero_oab"])
         validar_numero_oab(numero)
         return numero
+
+    def clean(self):
+        cleaned = super().clean()
+        senha = cleaned.get("nova_senha")
+        confirmacao = cleaned.get("confirmar_senha")
+        if senha and confirmacao and senha != confirmacao:
+            self.add_error("confirmar_senha", "As senhas não coincidem.")
+        if senha:
+            validate_password(senha, user=self.usuario)
+        return cleaned
+
+
+# Compatibilidade com import antigo
+FormularioCompletarCadastro = FormularioPrimeiroAcesso
 
 
 class FormularioRecuperacaoSenha(PasswordResetForm):

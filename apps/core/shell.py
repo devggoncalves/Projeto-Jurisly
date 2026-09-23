@@ -32,6 +32,8 @@ def perfil_label_usuario(usuario) -> str:
 
 
 def contexto_shell(usuario) -> dict:
+    from apps.contas.permissions import pode_gerenciar_usuarios
+
     nao_visualizados = 0
     try:
         advogado = getattr(usuario, "advogado", None)
@@ -51,6 +53,7 @@ def contexto_shell(usuario) -> dict:
         "iniciais": iniciais_usuario(usuario),
         "organizacoes": organizacoes_do_usuario(usuario),
         "nao_visualizados": nao_visualizados,
+        "pode_gerenciar_usuarios": pode_gerenciar_usuarios(usuario),
     }
 
 

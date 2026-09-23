@@ -26,6 +26,7 @@ class Command(BaseCommand):
         usuario.ativo = True
         usuario.is_staff = False
         usuario.is_superuser = False
+        usuario.deve_alterar_senha = False
         usuario.set_password(senha)
         usuario.save()
 

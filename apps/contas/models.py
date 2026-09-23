@@ -12,7 +12,7 @@ from apps.contas.managers import GerenciadorUsuario, normalizar_login
 
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
-    """Usuário autenticável do Jurisly (login + senha; e-mail no onboarding)."""
+    """Usuário autenticável do Jurisly (login por e-mail)."""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     login = models.CharField("login", max_length=150, unique=True, db_index=True)
@@ -22,6 +22,11 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     ativo = models.BooleanField("ativo", default=True)
     is_staff = models.BooleanField("acesso ao admin", default=False)
     is_superuser = models.BooleanField("superusuário", default=False)
+    deve_alterar_senha = models.BooleanField(
+        "deve alterar senha no próximo acesso",
+        default=False,
+        help_text="Marcado quando o administrador cria a conta com senha provisória.",
+    )
     data_criacao = models.DateTimeField("data de criação", default=timezone.now, editable=False)
     data_atualizacao = models.DateTimeField("data de atualização", auto_now=True)
     ultimo_acesso = models.DateTimeField("último acesso", blank=True, null=True)
@@ -62,10 +67,13 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
 
     @property
     def precisa_completar_cadastro(self) -> bool:
-        """Admin/staff isentos; demais precisam de e-mail + OAB ativa."""
+        """
+        Advogado criado pelo admin: no 1º acesso deve trocar a senha e cadastrar OAB.
+        Staff/superuser ficam isentos.
+        """
         if self.is_staff or self.is_superuser:
             return False
-        if not self.email:
+        if self.deve_alterar_senha:
             return True
         advogado = getattr(self, "advogado", None)
         if advogado is None:

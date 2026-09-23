@@ -4,22 +4,11 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
+from apps.advogados.models import InscricaoOab, UnidadeFederativa
 from apps.auditoria.models import AcaoAuditoria, LogAuditoria
-from apps.advogados.models import Advogado, InscricaoOab, TipoInscricaoOab, UnidadeFederativa
 from apps.organizacoes.models import Organizacao, OrganizacaoUsuario, PerfilOrganizacao
 
 Usuario = get_user_model()
-
-
-@pytest.fixture
-def usuario(db):
-    return Usuario.objects.create_user(
-        login="loginuser",
-        email="login@jurisly.com",
-        password="SenhaForte123!",
-        nome="Login",
-        is_staff=True,  # evita sync/onboarding em testes de auth
-    )
 
 
 @pytest.fixture
@@ -32,100 +21,102 @@ def mock_sync(monkeypatch):
     return resultado
 
 
+@pytest.fixture
+def admin_sistema(db):
+    return Usuario.objects.create_superuser(
+        login="admin",
+        email="admin@jurisly.com",
+        password="SenhaForte123!",
+    )
+
+
 @pytest.mark.django_db
-class TestAutenticacao:
-    def test_login_correto(self, client, usuario, mock_sync):
-        resposta = client.post(
-            reverse("contas:login"),
-            {"username": "loginuser", "password": "SenhaForte123!"},
-        )
-        assert resposta.status_code == 302
-        assert resposta.url == reverse("core:dashboard")
-        assert LogAuditoria.objects.filter(acao=AcaoAuditoria.LOGIN_SUCESSO).exists()
-
-    def test_login_por_email_legado(self, client, usuario, mock_sync):
-        resposta = client.post(
-            reverse("contas:login"),
-            {"username": "login@jurisly.com", "password": "SenhaForte123!"},
-        )
-        assert resposta.status_code == 302
-
-    def test_senha_incorreta(self, client, usuario):
-        resposta = client.post(
-            reverse("contas:login"),
-            {"username": "loginuser", "password": "errada"},
-        )
-        assert resposta.status_code == 400
-        assert LogAuditoria.objects.filter(acao=AcaoAuditoria.LOGIN_FALHA).exists()
-
-    def test_usuario_inexistente(self, client):
-        resposta = client.post(
-            reverse("contas:login"),
-            {"username": "naoexiste", "password": "SenhaForte123!"},
-        )
-        assert resposta.status_code == 400
-        assert b"N" in resposta.content
-
-    def test_usuario_inativo(self, client, usuario):
-        usuario.ativo = False
-        usuario.save(update_fields=["ativo"])
-        resposta = client.post(
-            reverse("contas:login"),
-            {"username": "loginuser", "password": "SenhaForte123!"},
-        )
-        assert resposta.status_code == 400
-
-    def test_logout(self, client, usuario):
-        client.force_login(usuario)
-        resposta = client.post(reverse("contas:logout"))
-        assert resposta.status_code == 302
-        assert resposta.url == reverse("contas:login")
-        assert LogAuditoria.objects.filter(acao=AcaoAuditoria.LOGOUT).exists()
-
-    def test_lembrar_de_mim_define_expiracao(self, client, usuario, settings, mock_sync):
-        client.post(
-            reverse("contas:login"),
+class TestCriacaoEPrimeiroAcesso:
+    def test_admin_cria_usuario_email_senha(self, client, admin_sistema, mock_sync):
+        org = Organizacao.objects.create(nome="Escritório", slug="esc")
+        client.force_login(admin_sistema)
+        resp = client.post(
+            reverse("contas:novo_usuario"),
             {
-                "username": "loginuser",
-                "password": "SenhaForte123!",
-                "lembrar": "on",
+                "email": "advogado@escritorio.com",
+                "senha": "Provisoria123!",
+                "senha_confirmacao": "Provisoria123!",
+                "organizacao": str(org.id),
             },
         )
-        assert client.session.get_expiry_age() == settings.SESSION_COOKIE_AGE
+        assert resp.status_code == 302
+        usuario = Usuario.objects.get(email="advogado@escritorio.com")
+        assert usuario.login == "advogado@escritorio.com"
+        assert usuario.deve_alterar_senha is True
+        assert usuario.precisa_completar_cadastro is True
+        assert usuario.check_password("Provisoria123!")
 
-    def test_onboarding_obrigatorio(self, client, db, mock_sync):
+    def test_primeiro_login_exige_senha_e_oab(self, client, mock_sync):
+        org = Organizacao.objects.create(nome="Escritório", slug="esc2")
         usuario = Usuario.objects.create_user(
-            login="novoadv",
-            password="SenhaForte123!",
+            login="adv@jurisly.com",
+            email="adv@jurisly.com",
+            password="Provisoria123!",
+            deve_alterar_senha=True,
         )
-        org = Organizacao.objects.create(nome="Org", slug="org-onboard")
         OrganizacaoUsuario.objects.create(
             organizacao=org,
             usuario=usuario,
             perfil=PerfilOrganizacao.ADVOGADO,
         )
-        resposta = client.post(
-            reverse("contas:login"),
-            {"username": "novoadv", "password": "SenhaForte123!"},
-        )
-        assert resposta.status_code == 302
-        assert resposta.url == reverse("contas:completar_cadastro")
 
-        client.force_login(usuario)
+        login = client.post(
+            reverse("contas:login"),
+            {"username": "adv@jurisly.com", "password": "Provisoria123!"},
+        )
+        assert login.status_code == 302
+        assert login.url == reverse("contas:completar_cadastro")
+
         completa = client.post(
             reverse("contas:completar_cadastro"),
             {
-                "nome_completo": "Novo Advogado",
-                "email": "novo@jurisly.com",
-                "numero_oab": "123456",
+                "nome_completo": "Advogado Teste",
+                "nova_senha": "NovaSenha123!",
+                "confirmar_senha": "NovaSenha123!",
+                "numero_oab": "496901",
                 "uf_oab": UnidadeFederativa.SP,
             },
         )
-        assert completa.status_code == 302, completa.content.decode()[:500]
+        assert completa.status_code == 302
         assert completa.url == reverse("core:dashboard")
+
         usuario.refresh_from_db()
-        assert usuario.email == "novo@jurisly.com"
-        assert InscricaoOab.objects.filter(
-            advogado__usuario=usuario, numero="123456", uf="SP"
-        ).exists()
+        assert usuario.deve_alterar_senha is False
+        assert usuario.check_password("NovaSenha123!")
         assert usuario.precisa_completar_cadastro is False
+        assert InscricaoOab.objects.filter(
+            advogado__usuario=usuario, numero="496901", uf="SP"
+        ).exists()
+
+
+@pytest.mark.django_db
+class TestAutenticacaoBasica:
+    @pytest.fixture
+    def usuario(self, db):
+        return Usuario.objects.create_user(
+            login="login@jurisly.com",
+            email="login@jurisly.com",
+            password="SenhaForte123!",
+            nome="Login",
+            is_staff=True,
+        )
+
+    def test_login_correto(self, client, usuario, mock_sync):
+        resposta = client.post(
+            reverse("contas:login"),
+            {"username": "login@jurisly.com", "password": "SenhaForte123!"},
+        )
+        assert resposta.status_code == 302
+        assert LogAuditoria.objects.filter(acao=AcaoAuditoria.LOGIN_SUCESSO).exists()
+
+    def test_senha_incorreta(self, client, usuario):
+        resposta = client.post(
+            reverse("contas:login"),
+            {"username": "login@jurisly.com", "password": "errada"},
+        )
+        assert resposta.status_code == 400

@@ -1,0 +1,66 @@
+{% extends "base/app.html" %}
+
+{% block title %}Usuários · Jurisly{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div>
+    <div class="eyebrow">Administração</div>
+    <h1 class="page-title">Usuários</h1>
+    <p class="page-desc">
+      Crie advogados com e-mail e senha provisória. Você também pode bloquear, resetar a senha
+      (padrão: 3 letras do nome + ano + #) ou excluir.
+    </p>
+  </div>
+  <a href="{% url 'contas:novo_usuario' %}" class="gold-btn">Novo usuário</a>
+</section>
+
+<section class="panel">
+  {% if usuarios %}
+    <ul class="comms-list comms-list--full">
+      {% for u in usuarios %}
+        <li class="user-row">
+          <div class="user-row-info">
+            <div class="comms-main">
+              <strong>{{ u.email|default:u.login }}</strong>
+              {% if u.deve_alterar_senha %}<span class="badge-new">1º acesso pendente</span>{% endif %}
+              {% if not u.ativo %}<span class="badge-status">Bloqueado</span>{% endif %}
+            </div>
+            <span>{{ u.get_full_name }}</span>
+            <small>Criado em {{ u.data_criacao|date:"d/m/Y H:i" }}</small>
+          </div>
+          {% if u.id != usuario.id %}
+          <div class="user-row-actions">
+            {% if u.ativo %}
+              <form method="post" action="{% url 'contas:acao_usuario' u.id %}">
+                {% csrf_token %}
+                <button type="submit" name="acao" value="bloquear" class="outline-btn">Bloquear</button>
+              </form>
+            {% else %}
+              <form method="post" action="{% url 'contas:acao_usuario' u.id %}">
+                {% csrf_token %}
+                <button type="submit" name="acao" value="desbloquear" class="outline-btn">Desbloquear</button>
+              </form>
+            {% endif %}
+            <form method="post" action="{% url 'contas:acao_usuario' u.id %}"
+                  onsubmit="return confirm('Resetar a senha deste usuário para o padrão (prefixo do nome + ano + #)?');">
+              {% csrf_token %}
+              <button type="submit" name="acao" value="resetar_senha" class="outline-btn">Resetar senha</button>
+            </form>
+            <form method="post" action="{% url 'contas:acao_usuario' u.id %}"
+                  onsubmit="return confirm('Excluir permanentemente este usuário? Esta ação não pode ser desfeita.');">
+              {% csrf_token %}
+              <button type="submit" name="acao" value="excluir" class="outline-btn is-danger">Excluir</button>
+            </form>
+          </div>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="empty">
+      <div>Nenhum usuário cadastrado.<small>Use “Novo usuário” para criar o primeiro advogado.</small></div>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
