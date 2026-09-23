@@ -559,7 +559,7 @@
 
   .login-page .brand-side {
     min-height: auto;
-    padding: 50px 25px 20px;
+    padding: 40px 20px 12px;
   }
 
   .login-page .brand-message,
@@ -571,55 +571,79 @@
   }
 
   .login-page .brand-glow {
-    width: 300px;
-    height: 300px;
+    width: 260px;
+    height: 260px;
   }
 
   .login-page .logo-oficial-lockup {
-    width: min(100%, 220px);
+    width: min(100%, 200px);
   }
 
   .login-page .login-side {
     min-height: auto;
-    padding: 20px 20px 50px;
+    padding: 12px 16px max(40px, env(safe-area-inset-bottom));
   }
 
   .login-page .login-card {
     max-width: 520px;
-    padding: 40px 30px;
+    width: 100%;
+    padding: 32px 22px;
+  }
+
+  .login-page .login-glow {
+    width: 320px;
+    height: 380px;
   }
 }
 
 @media (max-width: 500px) {
   .login-page .brand-side {
-    padding-top: 35px;
+    padding-top: max(28px, env(safe-area-inset-top));
   }
 
   .login-page .login-card {
-    border-radius: 20px;
-    padding: 35px 22px;
+    border-radius: 18px;
+    padding: 28px 16px;
   }
 
   .login-page .login-title {
-    font-size: 26px;
+    font-size: 24px;
   }
 
   .login-page .login-title strong {
-    font-size: 45px;
+    font-size: clamp(36px, 12vw, 44px);
   }
 
   .login-page .login-description {
-    font-size: 17px;
+    font-size: 16px;
+  }
+
+  .login-page .login-form {
+    margin-top: 28px;
   }
 
   .login-page .login-options {
     align-items: flex-start;
     flex-direction: column;
-    gap: 15px;
+    gap: 14px;
   }
 
   .login-page .field,
   .login-page .login-button {
-    height: 58px;
+    height: 54px;
+  }
+
+  .login-page .field input {
+    font-size: 16px; /* evita zoom automático no iOS */
+  }
+
+  .login-page .field-icon,
+  .login-page .password-toggle {
+    width: 48px;
+  }
+
+  .login-page .login-button {
+    letter-spacing: 2px;
+    font-size: 14px;
   }
 }

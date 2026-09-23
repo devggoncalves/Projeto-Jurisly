@@ -1099,6 +1099,81 @@
   border-top: 1px solid var(--line);
 }
 
+.dashboard-page .menu-toggle {
+  display: none;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  cursor: pointer;
+  place-items: center;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.dashboard-page .menu-toggle-bars,
+.dashboard-page .menu-toggle-bars::before,
+.dashboard-page .menu-toggle-bars::after {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.dashboard-page .menu-toggle-bars {
+  position: relative;
+}
+
+.dashboard-page .menu-toggle-bars::before,
+.dashboard-page .menu-toggle-bars::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+
+.dashboard-page .menu-toggle-bars::before {
+  top: -6px;
+}
+
+.dashboard-page .menu-toggle-bars::after {
+  top: 6px;
+}
+
+.dashboard-page.nav-open .menu-toggle-bars {
+  background: transparent;
+}
+
+.dashboard-page.nav-open .menu-toggle-bars::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+
+.dashboard-page.nav-open .menu-toggle-bars::after {
+  top: 0;
+  transform: rotate(-45deg);
+}
+
+.dashboard-page .nav-backdrop {
+  display: none;
+}
+
+.dashboard-page .user-meta {
+  min-width: 0;
+}
+
+.dashboard-page .html-mail-frame {
+  display: block;
+  width: 100%;
+  min-height: 280px;
+  height: min(60vh, 520px);
+  border: 0;
+  background: #fff;
+}
+
 @media (max-width: 760px) {
   .dashboard-page .page-head,
   .dashboard-page .form-actions {
@@ -1162,55 +1237,248 @@
 @media (max-width: 760px) {
   .dashboard-page {
     --sidebar: 0px;
-    --topbar: 78px;
+    --topbar: 72px;
+    overflow-x: hidden;
+  }
+
+  .dashboard-page .menu-toggle {
+    display: grid;
+  }
+
+  .dashboard-page .nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 25;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .dashboard-page.nav-open .nav-backdrop {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .dashboard-page .sidebar {
-    transform: translateX(-100%);
+    --sidebar: 280px;
+    width: min(280px, 86vw);
+    transform: translateX(-105%);
+    transition: transform 0.22s ease;
+    z-index: 30;
+    padding-top: 28px;
+    box-shadow: 12px 0 40px rgba(0, 0, 0, 0.45);
+  }
+
+  .dashboard-page.nav-open .sidebar {
+    transform: translateX(0);
+  }
+
+  .dashboard-page .collapse {
+    display: none;
   }
 
   .dashboard-page .topbar {
-    padding: 0 18px;
+    padding: 0 14px;
+    gap: 10px;
+  }
+
+  .dashboard-page .brand {
+    gap: 12px;
+    min-width: 0;
   }
 
   .dashboard-page .brand img {
-    height: 48px;
+    height: 42px;
+    max-width: 140px;
   }
 
-  .dashboard-page .user-name,
-  .dashboard-page .user-role,
+  .dashboard-page .user {
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .dashboard-page .user-meta,
   .dashboard-page .chev {
     display: none;
   }
 
+  .dashboard-page .bell {
+    width: 36px;
+    height: 36px;
+    margin-right: 0;
+  }
+
+  .dashboard-page .avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+
   .dashboard-page .main {
-    padding-left: 14px;
-    padding-right: 14px;
+    margin-left: 0;
+    padding: calc(var(--topbar) + 16px) 14px 28px;
+    width: 100%;
+    max-width: 100vw;
   }
 
   .dashboard-page .stats {
     grid-template-columns: 1fr;
   }
 
+  .dashboard-page .stat {
+    min-height: 0;
+    padding: 16px;
+  }
+
+  .dashboard-page .stat strong {
+    font-size: 28px;
+  }
+
   .dashboard-page .hero {
-    padding: 30px 22px;
+    min-height: 0;
+    padding: 24px 18px;
   }
 
   .dashboard-page .hero h1 {
-    font-size: 36px;
+    font-size: clamp(28px, 8vw, 36px);
+  }
+
+  .dashboard-page .hero p {
+    margin-top: 16px;
+    font-size: 14px;
+  }
+
+  .dashboard-page .alert-banner {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px 16px;
+  }
+
+  .dashboard-page .alert-banner .gold-btn,
+  .dashboard-page .alert-banner .outline-btn {
+    width: 100%;
   }
 
   .dashboard-page .tip {
     align-items: flex-start;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px 18px;
   }
 
   .dashboard-page .tip .outline-btn {
     margin-left: 0;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .dashboard-page .panel {
+    padding: 16px;
+    overflow: hidden;
+  }
+
+  .dashboard-page .panel-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dashboard-page .panel-head .outline-btn,
+  .dashboard-page .panel-head .gold-btn {
+    width: 100%;
+  }
+
+  .dashboard-page .empty {
+    margin: 20px 0;
+    align-items: flex-start;
+  }
+
+  .dashboard-page .page-head {
+    gap: 14px;
+  }
+
+  .dashboard-page .page-head .gold-btn,
+  .dashboard-page .page-head .outline-btn,
+  .dashboard-page .page-head .oab-chip {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .dashboard-page .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .dashboard-page .form-actions .gold-btn,
+  .dashboard-page .form-actions .outline-btn {
+    width: 100%;
+  }
+
+  .dashboard-page .gold-btn,
+  .dashboard-page .outline-btn {
+    white-space: normal;
+    text-align: center;
+  }
+
+  .dashboard-page .quick-actions {
+    flex-direction: column;
+  }
+
+  .dashboard-page .quick-actions form {
+    width: 100%;
+  }
+
+  .dashboard-page .quick-actions .gold-btn,
+  .dashboard-page .quick-actions .outline-btn {
+    width: 100%;
+  }
+
+  .dashboard-page .data-table {
+    min-width: 560px;
+  }
+
+  .dashboard-page .html-mail-frame {
+    min-height: 220px;
+    height: 55vh;
+  }
+
+  .dashboard-page .campo-texto,
+  .dashboard-page .campo-select {
+    font-size: 16px; /* evita zoom automático no iOS */
   }
 
   .dashboard-page .footer {
-    gap: 20px;
+    gap: 12px;
     flex-direction: column;
+  }
+
+  .dashboard-page .user-row {
+    flex-direction: column;
+  }
+
+  .dashboard-page .user-row-actions {
+    width: 100%;
+  }
+
+  .dashboard-page .user-row-actions .outline-btn,
+  .dashboard-page .user-row-actions .gold-btn {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .dashboard-page .bell {
+    display: none;
+  }
+
+  .dashboard-page .page-title {
+    font-size: 28px;
+  }
+
+  .dashboard-page .hero h1 {
+    font-size: 26px;
   }
 }

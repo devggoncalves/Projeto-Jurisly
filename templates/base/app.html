@@ -15,6 +15,16 @@
 <body class="dashboard-page">
   <header class="topbar">
     <div class="brand">
+      <button
+        type="button"
+        class="menu-toggle"
+        id="menuToggle"
+        aria-label="Abrir menu"
+        aria-controls="sidebar"
+        aria-expanded="false"
+      >
+        <span class="menu-toggle-bars" aria-hidden="true"></span>
+      </button>
       <a href="{% url 'core:dashboard' %}" aria-label="Jurisly">
         <img
           src="{% static 'images/brand/logo-jurisly.png' %}"
@@ -33,7 +43,7 @@
         {% if nao_visualizados %}<span class="bell-badge">{{ nao_visualizados }}</span>{% endif %}
       </div>
       <div class="avatar" aria-hidden="true">{{ iniciais }}</div>
-      <div>
+      <div class="user-meta">
         <div class="user-name">{{ nome_exibicao }}</div>
         <div class="user-role">{{ perfil_label }}</div>
       </div>
@@ -41,7 +51,9 @@
     </div>
   </header>
 
-  <aside class="sidebar" aria-label="Menu principal">
+  <div class="nav-backdrop" id="navBackdrop" hidden></div>
+
+  <aside class="sidebar" id="sidebar" aria-label="Menu principal">
     <button class="collapse" id="collapseSidebar" type="button" aria-label="Recolher menu">«</button>
 
     <nav class="nav">
