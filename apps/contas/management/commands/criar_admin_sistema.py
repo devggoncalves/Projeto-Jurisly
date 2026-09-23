@@ -7,7 +7,7 @@ class Command(BaseCommand):
     help = "Cria (ou atualiza) o superusuário admin do sistema."
 
     def handle(self, *args, **options):
-        login = "admin"
+        login = "admin@jurisly.com"
         email = "admin@jurisly.com"
         senha = "SenhaForte123!"
 
