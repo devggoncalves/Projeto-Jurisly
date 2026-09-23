@@ -12,6 +12,16 @@ if _render_host:
     if _origin not in CSRF_TRUSTED_ORIGINS:  # noqa: F405
         CSRF_TRUSTED_ORIGINS = [*CSRF_TRUSTED_ORIGINS, _origin]  # noqa: F405
 
+# Fly.io: FLY_APP_NAME → {app}.fly.dev
+_fly_app = env("FLY_APP_NAME", default="")
+if _fly_app:
+    _fly_host = f"{_fly_app}.fly.dev"
+    if _fly_host not in ALLOWED_HOSTS:  # noqa: F405
+        ALLOWED_HOSTS = [*ALLOWED_HOSTS, _fly_host]  # noqa: F405
+    _fly_origin = f"https://{_fly_host}"
+    if _fly_origin not in CSRF_TRUSTED_ORIGINS:  # noqa: F405
+        CSRF_TRUSTED_ORIGINS = [*CSRF_TRUSTED_ORIGINS, _fly_origin]  # noqa: F405
+
 SECURE_SSL_REDIRECT = env("SECURE_SSL_REDIRECT", default=True)
 SESSION_COOKIE_SECURE = env("SESSION_COOKIE_SECURE", default=True)
 CSRF_COOKIE_SECURE = env("CSRF_COOKIE_SECURE", default=True)
