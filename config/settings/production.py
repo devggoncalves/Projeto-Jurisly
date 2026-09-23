@@ -3,6 +3,15 @@ from .base import env
 
 DEBUG = False
 
+# Render injeta RENDER_EXTERNAL_HOSTNAME automaticamente
+_render_host = env("RENDER_EXTERNAL_HOSTNAME", default="")
+if _render_host:
+    if _render_host not in ALLOWED_HOSTS:  # noqa: F405
+        ALLOWED_HOSTS = [*ALLOWED_HOSTS, _render_host]  # noqa: F405
+    _origin = f"https://{_render_host}"
+    if _origin not in CSRF_TRUSTED_ORIGINS:  # noqa: F405
+        CSRF_TRUSTED_ORIGINS = [*CSRF_TRUSTED_ORIGINS, _origin]  # noqa: F405
+
 SECURE_SSL_REDIRECT = env("SECURE_SSL_REDIRECT", default=True)
 SESSION_COOKIE_SECURE = env("SESSION_COOKIE_SECURE", default=True)
 CSRF_COOKIE_SECURE = env("CSRF_COOKIE_SECURE", default=True)

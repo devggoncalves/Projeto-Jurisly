@@ -5,13 +5,13 @@ echo "Aguardando PostgreSQL..."
 python <<'PY'
 import os
 import time
+from urllib.parse import urlparse
 
 import psycopg
-from urllib.parse import urlparse
 
 url = os.environ.get("DATABASE_URL", "")
 parsed = urlparse(url)
-deadline = time.time() + 60
+deadline = time.time() + 90
 
 while time.time() < deadline:
     try:
@@ -30,5 +30,20 @@ while time.time() < deadline:
 else:
     raise SystemExit("PostgreSQL não ficou disponível a tempo.")
 PY
+
+if [ "${RUN_MIGRATE:-1}" = "1" ]; then
+  echo "Aplicando migrations..."
+  python manage.py migrate --noinput
+fi
+
+if [ "${RUN_COLLECTSTATIC:-1}" = "1" ]; then
+  echo "Coletando estáticos..."
+  python manage.py collectstatic --noinput
+fi
+
+if [ "${SEED_DEMO:-0}" = "1" ]; then
+  echo "Garantindo usuário demo..."
+  python manage.py criar_advogado_demo || true
+fi
 
 exec "$@"
