@@ -44,6 +44,8 @@ fi
 if [ "${SEED_DEMO:-0}" = "1" ]; then
   echo "Garantindo usuário demo..."
   python manage.py criar_advogado_demo || true
+  echo "Garantindo admin do sistema..."
+  python manage.py criar_admin_sistema || true
 fi
 
 exec "$@"
