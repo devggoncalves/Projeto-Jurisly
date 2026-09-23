@@ -164,10 +164,6 @@ DJEN_TIMEOUT = env.float("DJEN_TIMEOUT", default=30.0)
 DJEN_MAX_RETRIES = env.int("DJEN_MAX_RETRIES", default=2)
 DJEN_ITENS_POR_PAGINA = env.int("DJEN_ITENS_POR_PAGINA", default=20)
 DJEN_DIAS_SINCRONIZACAO = env.int("DJEN_DIAS_SINCRONIZACAO", default=7)
-# Proxy HTTP(S) clássico com IP BR (opcional)
-DJEN_HTTP_PROXY = env("DJEN_HTTP_PROXY", default="")
-# Segredo do relay temporário (ops/djen_relay). Enviado no header X-Jurisly-Relay.
-DJEN_RELAY_SECRET = env("DJEN_RELAY_SECRET", default="")
 
 LOGGING = {
     "version": 1,

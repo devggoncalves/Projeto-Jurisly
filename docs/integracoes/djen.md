@@ -8,28 +8,6 @@ Data de validação da API pública: **22/09/2026**.
 - Recurso: `GET /api/v1/comunicacao`
 - Homologação (`https://hcomunicaapi.cnj.jus.br`): timeout observado na validação; configurável via `DJEN_BASE_URL`.
 
-## Bloqueio 403 em nuvem internacional
-
-A API passa por CloudFront e frequentemente responde **403** para IPs fora do Brasil
-(datacenters nos EUA/Europa, como o plano free do Render em Oregon).
-
-Importante: o bloqueio é no **IP de saída do servidor** Jurisly, não no IP do usuário.
-Advogados acessando do Brasil pelo navegador continuam ok — quem precisa de IP BR é a
-máquina que chama `comunicaapi.pje.jus.br`.
-
-- Local (IP residencial BR): funciona.
-- Render / Fly US / etc.: pode falhar com 403.
-
-Mitigações:
-
-1. Hospedar a aplicação em região/IP brasileiro (ex.: Fly.io `gru`, VPS BR).
-2. Ou configurar `DJEN_HTTP_PROXY` com um proxy HTTP(S) cuja saída seja IP brasileiro.
-3. **Temporário (multi-usuário):** relay 24/7 em São Paulo (`ops/djen_relay` no Fly.io `gru`).
-   O Render aponta `DJEN_BASE_URL` para o relay; todos os usuários do SaaS passam a
-   receber dados DJEN independentemente de onde estejam.
-
-Ver `ops/djen_relay/README.md`.
-
 ## Parâmetros usados pelo Jurisly
 
 | Parâmetro API | Origem no Jurisly |

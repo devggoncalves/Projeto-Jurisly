@@ -82,29 +82,15 @@ class ClienteDjen:
         if self._client_externo is not None:
             return self._client_externo
         if self._client_proprio is None:
-            proxy = (settings.DJEN_HTTP_PROXY or "").strip() or None
-            headers = {
-                "Accept": "application/json, text/plain, */*",
-                "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
-                "Origin": "https://comunica.pje.jus.br",
-                "Referer": "https://comunica.pje.jus.br/",
-                "User-Agent": (
-                    "Mozilla/5.0 (compatible; Jurisly/0.1; +https://jurisly.com.br) "
-                    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
-                ),
-            }
-            relay_secret = (settings.DJEN_RELAY_SECRET or "").strip()
-            if relay_secret:
-                headers["X-Jurisly-Relay"] = relay_secret
-            client_kwargs: dict[str, Any] = {
-                "base_url": self.base_url,
-                "timeout": httpx.Timeout(self.timeout, connect=min(10.0, self.timeout)),
-                "headers": headers,
-                "follow_redirects": True,
-            }
-            if proxy:
-                client_kwargs["proxy"] = proxy
-            self._client_proprio = httpx.Client(**client_kwargs)
+            self._client_proprio = httpx.Client(
+                base_url=self.base_url,
+                timeout=httpx.Timeout(self.timeout, connect=min(10.0, self.timeout)),
+                headers={
+                    "Accept": "application/json",
+                    "User-Agent": "Jurisly/0.1 (+integracao-djen)",
+                },
+                follow_redirects=True,
+            )
         return self._client_proprio
 
     def close(self) -> None:
@@ -246,20 +232,10 @@ class ClienteDjen:
                 continue
 
             if resposta.status_code >= 400:
-                corpo = self._safe_json(resposta)
-                mensagem = f"DJEN respondeu {resposta.status_code}."
-                if resposta.status_code == 403:
-                    mensagem = (
-                        "DJEN respondeu 403 (acesso negado). "
-                        "A API do CNJ costuma bloquear IPs fora do Brasil "
-                        "(ex.: servidores nos EUA como o Render). "
-                        "Use hospedagem/proxy com IP brasileiro "
-                        "(variável DJEN_HTTP_PROXY) ou rode a sync a partir do Brasil."
-                    )
                 raise ErroDjenHttp(
-                    mensagem,
+                    f"DJEN respondeu {resposta.status_code}.",
                     status_code=resposta.status_code,
-                    corpo=corpo,
+                    corpo=self._safe_json(resposta),
                 )
 
             try:
